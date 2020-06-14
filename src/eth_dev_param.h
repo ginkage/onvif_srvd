@@ -39,66 +39,52 @@
 #ifndef ETH_DEV_PARAM_H
 #define ETH_DEV_PARAM_H
 
-#include <stdint.h>
 #include <net/if.h>
+#include <stdint.h>
 
+class Eth_Dev_Param {
+public:
+    Eth_Dev_Param();
+    ~Eth_Dev_Param();
 
+    bool is_open() const { return _opened; }
 
+    int open(const char* dev_name);
+    void close();
 
+    const char* dev_name() const { return _ifr.ifr_name; }
 
-class Eth_Dev_Param
-{
-    public:
-         Eth_Dev_Param();
-        ~Eth_Dev_Param();
+    int set_ip(const char* IP);
+    int set_ip(uint32_t IP);
 
-        bool is_open() const { return _opened; }
+    int get_ip(char* IP) const;
+    int get_ip(uint32_t* IP) const;
 
-        int open(const char *dev_name);
-        void close();
+    int set_mask(const char* mask);
+    int set_mask(uint32_t mask);
 
-        const char *dev_name() const { return _ifr.ifr_name; }
+    int get_mask(char* mask) const;
+    int get_mask(uint32_t* mask) const;
+    int get_mask_prefix() const;
 
+    int set_gateway(const char* gateway);
+    int set_gateway(uint32_t gateway);
 
-        int set_ip(const char *IP);
-        int set_ip(uint32_t IP);
+    int get_gateway(char* gateway) const;
+    int get_gateway(uint32_t* gateway) const;
 
-        int get_ip(char *IP) const;
-        int get_ip(uint32_t *IP) const;
+    int set_hwaddr(const char* hwaddr);
+    int set_hwaddr(const uint8_t* hwaddr);
 
+    int get_hwaddr(char* hwaddr) const;
+    int get_hwaddr(uint8_t* hwaddr) const;
 
-        int set_mask(const char *mask);
-        int set_mask(uint32_t mask);
+private:
+    int _sd;
+    bool _opened;
+    struct ifreq _ifr;
 
-        int get_mask(char *mask) const;
-        int get_mask(uint32_t *mask) const;
-        int get_mask_prefix() const;
-
-
-        int set_gateway(const char *gateway);
-        int set_gateway(uint32_t gateway);
-
-        int get_gateway(char *gateway) const;
-        int get_gateway(uint32_t *gateway) const;
-
-
-        int set_hwaddr(const char *hwaddr);
-        int set_hwaddr(const uint8_t *hwaddr);
-
-        int get_hwaddr(char *hwaddr) const;
-        int get_hwaddr(uint8_t *hwaddr) const;
-
-
-    private:
-        int          _sd;
-        bool         _opened;
-        struct ifreq _ifr;
-
-        int run_shell_cmd(const char *cmd) const;
+    int run_shell_cmd(const char* cmd) const;
 };
-
-
-
-
 
 #endif // ETH_DEV_PARAM_H
