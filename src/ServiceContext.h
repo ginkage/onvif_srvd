@@ -46,6 +46,7 @@ private:
 
     std::string str_err;
 
+public:
     tt__VideoSourceConfiguration* get_video_src_cnf(struct soap* soap) const;
     tt__VideoEncoderConfiguration* get_video_enc_cfg(struct soap* soap) const;
     tt__PTZConfiguration* get_ptz_cfg(struct soap* soap) const;

@@ -17,8 +17,8 @@ int MediaBindingService::GetServiceCapabilities(
 {
     DEBUG_MSG("Media: %s\n", __FUNCTION__);
 
-    ServiceContext* ctx = (ServiceContext*)this->soap->user;
-    trt__GetServiceCapabilitiesResponse.Capabilities = ctx->getMediaServiceCapabilities(this->soap);
+    ServiceContext* ctx = (ServiceContext*)soap->user;
+    trt__GetServiceCapabilitiesResponse.Capabilities = ctx->getMediaServiceCapabilities(soap);
 
     return SOAP_OK;
 }
@@ -28,12 +28,12 @@ int MediaBindingService::GetVideoSources(_trt__GetVideoSources* trt__GetVideoSou
 {
     DEBUG_MSG("Media: %s\n", __FUNCTION__);
 
-    ServiceContext* ctx = (ServiceContext*)this->soap->user;
+    ServiceContext* ctx = (ServiceContext*)soap->user;
 
     auto profiles = ctx->get_profiles();
 
     for (auto it = profiles.cbegin(); it != profiles.cend(); ++it) {
-        trt__GetVideoSourcesResponse.VideoSources.push_back(it->second.get_video_src(this->soap));
+        trt__GetVideoSourcesResponse.VideoSources.push_back(it->second.get_video_src(soap));
     }
 
     return SOAP_OK;
@@ -67,12 +67,12 @@ int MediaBindingService::GetProfile(
 
     int ret = SOAP_FAULT;
 
-    ServiceContext* ctx = (ServiceContext*)this->soap->user;
+    ServiceContext* ctx = (ServiceContext*)soap->user;
     auto profiles = ctx->get_profiles();
     auto it = profiles.find(trt__GetProfile->ProfileToken);
 
     if (it != profiles.end()) {
-        trt__GetProfileResponse.Profile = it->second.get_profile(this->soap);
+        trt__GetProfileResponse.Profile = it->second.get_profile(soap);
         ret = SOAP_OK;
     }
 
@@ -84,12 +84,12 @@ int MediaBindingService::GetProfiles(
 {
     DEBUG_MSG("Media: %s\n", __FUNCTION__);
 
-    ServiceContext* ctx = (ServiceContext*)this->soap->user;
+    ServiceContext* ctx = (ServiceContext*)soap->user;
 
     auto profiles = ctx->get_profiles();
 
     for (auto it = profiles.cbegin(); it != profiles.cend(); ++it) {
-        trt__GetProfilesResponse.Profiles.push_back(it->second.get_profile(this->soap));
+        trt__GetProfilesResponse.Profiles.push_back(it->second.get_profile(soap));
     }
 
     return SOAP_OK;
@@ -250,6 +250,15 @@ int MediaBindingService::GetVideoSourceConfigurations(
     _trt__GetVideoSourceConfigurationsResponse& trt__GetVideoSourceConfigurationsResponse)
 {
     DEBUG_MSG("Media: %s\n", __FUNCTION__);
+
+    ServiceContext* ctx = (ServiceContext*)soap->user;
+    auto profiles = ctx->get_profiles();
+
+    for (auto it = profiles.cbegin(); it != profiles.cend(); ++it) {
+        trt__GetVideoSourceConfigurationsResponse.Configurations.push_back(
+            it->second.get_video_src_cnf(soap));
+    }
+
     return SOAP_OK;
 }
 
@@ -258,6 +267,15 @@ int MediaBindingService::GetVideoEncoderConfigurations(
     _trt__GetVideoEncoderConfigurationsResponse& trt__GetVideoEncoderConfigurationsResponse)
 {
     DEBUG_MSG("Media: %s\n", __FUNCTION__);
+
+    ServiceContext* ctx = (ServiceContext*)soap->user;
+    auto profiles = ctx->get_profiles();
+
+    for (auto it = profiles.cbegin(); it != profiles.cend(); ++it) {
+        trt__GetVideoEncoderConfigurationsResponse.Configurations.push_back(
+            it->second.get_video_enc_cfg(soap));
+    }
+
     return SOAP_OK;
 }
 
@@ -589,14 +607,14 @@ int MediaBindingService::GetStreamUri(
 
     int ret = SOAP_FAULT;
 
-    ServiceContext* ctx = (ServiceContext*)this->soap->user;
+    ServiceContext* ctx = (ServiceContext*)soap->user;
     auto profiles = ctx->get_profiles();
     auto it = profiles.find(trt__GetStreamUri->ProfileToken);
 
     if (it != profiles.end()) {
-        trt__GetStreamUriResponse.MediaUri = soap_new_tt__MediaUri(this->soap);
+        trt__GetStreamUriResponse.MediaUri = soap_new_tt__MediaUri(soap);
         trt__GetStreamUriResponse.MediaUri->Uri
-            = ctx->get_stream_uri(it->second.get_url(), htonl(this->soap->ip));
+            = ctx->get_stream_uri(it->second.get_url(), htonl(soap->ip));
         ret = SOAP_OK;
     }
 
@@ -635,14 +653,14 @@ int MediaBindingService::GetSnapshotUri(_trt__GetSnapshotUri* trt__GetSnapshotUr
 
     int ret = SOAP_FAULT;
 
-    ServiceContext* ctx = (ServiceContext*)this->soap->user;
+    ServiceContext* ctx = (ServiceContext*)soap->user;
     auto profiles = ctx->get_profiles();
     auto it = profiles.find(trt__GetSnapshotUri->ProfileToken);
 
     if (it != profiles.end()) {
-        trt__GetSnapshotUriResponse.MediaUri = soap_new_tt__MediaUri(this->soap);
+        trt__GetSnapshotUriResponse.MediaUri = soap_new_tt__MediaUri(soap);
         trt__GetSnapshotUriResponse.MediaUri->Uri
-            = ctx->get_snapshot_uri(it->second.get_snapurl(), htonl(this->soap->ip));
+            = ctx->get_snapshot_uri(it->second.get_snapurl(), htonl(soap->ip));
         ret = SOAP_OK;
     }
 
