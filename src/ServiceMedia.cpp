@@ -533,6 +533,25 @@ int MediaBindingService::GetVideoSourceConfigurationOptions(
         trt__GetVideoSourceConfigurationOptionsResponse)
 {
     DEBUG_MSG("Media: %s\n", __FUNCTION__);
+
+    ServiceContext* ctx = (ServiceContext*)soap->user;
+    auto profiles = ctx->get_profiles();
+
+    for (auto it = profiles.cbegin(); it != profiles.cend(); ++it) {
+        if (*trt__GetVideoSourceConfigurationOptions->ProfileToken == it->second.get_name()) {
+            tt__VideoSourceConfiguration* config = it->second.get_video_src_cnf(soap);
+            trt__GetVideoSourceConfigurationOptionsResponse.Options
+                = soap_new_req_tt__VideoSourceConfigurationOptions(soap,
+                    soap_new_req_tt__IntRectangleRange(soap,
+                        soap_new_req_tt__IntRange(soap, 0, config->Bounds->x),
+                        soap_new_req_tt__IntRange(soap, 0, config->Bounds->y),
+                        soap_new_req_tt__IntRange(soap, 0, config->Bounds->width),
+                        soap_new_req_tt__IntRange(soap, 0, config->Bounds->height)),
+                    { config->SourceToken });
+        }
+        break;
+    }
+
     return SOAP_OK;
 }
 
@@ -542,6 +561,28 @@ int MediaBindingService::GetVideoEncoderConfigurationOptions(
         trt__GetVideoEncoderConfigurationOptionsResponse)
 {
     DEBUG_MSG("Media: %s\n", __FUNCTION__);
+
+    ServiceContext* ctx = (ServiceContext*)soap->user;
+    auto profiles = ctx->get_profiles();
+
+    for (auto it = profiles.cbegin(); it != profiles.cend(); ++it) {
+        if (*trt__GetVideoEncoderConfigurationOptions->ProfileToken == it->second.get_name()) {
+            tt__VideoEncoderConfiguration* config = it->second.get_video_enc_cfg(soap);
+            tt__H264Configuration* h264 = config->H264;
+            trt__GetVideoEncoderConfigurationOptionsResponse.Options
+                = soap_new_req_tt__VideoEncoderConfigurationOptions(soap,
+                    soap_new_req_tt__IntRange(soap, (int)config->Quality, (int)config->Quality));
+            trt__GetVideoEncoderConfigurationOptionsResponse.Options->H264
+                = soap_new_req_tt__H264Options(soap, { config->Resolution },
+                    soap_new_req_tt__IntRange(soap, h264->GovLength, h264->GovLength),
+                    soap_new_req_tt__IntRange(soap, config->RateControl->FrameRateLimit,
+                        config->RateControl->FrameRateLimit),
+                    soap_new_req_tt__IntRange(soap, config->RateControl->EncodingInterval,
+                        config->RateControl->EncodingInterval),
+                    { h264->H264Profile });
+        }
+    }
+
     return SOAP_OK;
 }
 
